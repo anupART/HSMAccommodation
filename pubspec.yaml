@@ -40,6 +40,7 @@ dependencies:
   flutter_calendar_week: ^3.0.2
   book_my_seat: ^1.0.1
   get: ^4.6.6
+  table_calendar: ^3.0.9
   # intl: ^0.19.0
 
 dev_dependencies:

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar_week/flutter_calendar_week.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart'; // New import for TableCalendar
 import 'dart:math';
 
 void main() {
@@ -9,23 +9,24 @@ void main() {
 }
 
 class HSMAccommodation extends StatefulWidget {
-   HSMAccommodation({this.index, super.key});
+  HSMAccommodation({this.index, super.key});
 
-    int ? index;
+  int? index;
 
   @override
   _CalendarBedBookingState createState() => _CalendarBedBookingState();
 }
 
 class _CalendarBedBookingState extends State<HSMAccommodation> {
-  final CalendarWeekController _calendarController = CalendarWeekController();
   late DateTime selectedDate;
   Map<DateTime, List<BedState>> bedStatusByDate = {};
+  late DateTime focusedDate;
 
   @override
   void initState() {
     super.initState();
     selectedDate = DateTime.now();
+    focusedDate = DateTime.now();
     _initializeBedStatus();
   }
 
@@ -34,34 +35,33 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       DateTime date = DateTime.now().add(Duration(days: i));
       if (!bedStatusByDate.containsKey(date)) {
         bedStatusByDate[date] = List.generate(18,
-            (index) => Random().nextBool() ? BedState.vacant : BedState.booked);
+                (index) => Random().nextBool() ? BedState.vacant : BedState.booked);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.white,
-        title: Text(
-          'HSM Accommodation',
-          style: GoogleFonts.roboto(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text(
+            'HSM Accommodation',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Padding(
-              padding: const EdgeInsets.only(right: 20, top: 20, bottom: 8),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 20, top: 10, bottom: 8),
               child: Container(
-                width: 30,
-                height: 30,
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
+                width: 35,
+                height: 35,
+                decoration:  BoxDecoration(
+                  color: Colors.orange.shade300,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -71,61 +71,89 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildCalendar(),
-          Expanded(child: _buildBedLayout()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCalendar() {
-    return Container(
-      height: MediaQuery.of(context).size.height / 7,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade400,
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
-        ],
-      ),
-      child: CalendarWeek(
-        controller: _calendarController,
-        height: 100,
-        showMonth: true,
-        minDate: DateTime.now().subtract(Duration(days: 30)),
-        maxDate: DateTime.now().add(Duration(days: 60)),
-        onDatePressed: (DateTime datetime) {
-          setState(() {
-            selectedDate = datetime;
-          });
-        },
-        dayOfWeekStyle: const TextStyle(color: Colors.grey),
-        dateStyle: const TextStyle(color: Colors.black),
-        todayDateStyle: const TextStyle(
-          color: Colors.orange,
-          fontWeight: FontWeight.bold,
+          ],
+          // bottom: [
+          //   PreferredSize(
+          //       preferredSize: PreferredSize.height(100),
+          //       child: _buildTableCalendar()),
+          // ],
+          /*
+          *  bottom: PreferredSize(
+      preferredSize: const Size.fromHeight(100), // Specify the size for your custom widget
+      child: _buildTableCalendar(), // Use your custom calendar widget
+        ),*/
+        ),
+        body: Column(
+          children: [
+            const SizedBox(height: 8,),
+            SizedBox(
+              width: MediaQuery.of(context).size.width/1.05,
+              child: Card(
+                elevation: 6,
+                  color: Colors.white,
+                  child: _buildTableCalendar()),
+            ),
+            // Divider(color: Colors.grey.shade400,indent: 10,endIndent: 10,height: 0,thickness: 2,),
+            SizedBox(height: 10,),
+            Expanded(child: _buildBedLayout()),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBedLayout() {
-    List<BedState> bedStatus = bedStatusByDate[selectedDate] ??
-        List.generate(18, (index) => BedState.vacant);
+  Widget _buildTableCalendar() {
+    return TableCalendar(
+      focusedDay: focusedDate,
+      firstDay: DateTime.now().subtract(const Duration(days: 30)),
+      lastDay: DateTime.now().add(const Duration(days: 60)),
+      calendarFormat: CalendarFormat.week,
+      selectedDayPredicate: (day) => isSameDay(selectedDate, day),
+      onDaySelected: (selectedDay, focusedDay) {
+        setState(() {
+          selectedDate = selectedDay;
+          focusedDate = focusedDay;
+        });
+      },
+      headerStyle: HeaderStyle(
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.deepOrangeAccent,
+        ),
+        formatButtonVisible: false,
+        titleCentered: true,
+        leftChevronIcon: const Icon(
+          Icons.chevron_left,
+          color: Colors.deepOrangeAccent,
+        ),
+        rightChevronIcon: const Icon(
+          Icons.chevron_right,
+          color: Colors.deepOrangeAccent,
+        ),
+      ),
+      calendarStyle: const CalendarStyle(
+        selectedDecoration: BoxDecoration(
+          color: Colors.deepOrange,
+          shape: BoxShape.circle,
+        ),
+        todayDecoration: BoxDecoration(
+          color: Colors.orangeAccent,
+          shape: BoxShape.circle,
+        ),
+        outsideDaysVisible: false,
+      ),
+    );
+  }
 
+
+  Widget _buildBedLayout() {
+    List<BedState> bedStatus = bedStatusByDate[selectedDate] ?? List.generate(18, (index) => BedState.vacant);
     bool isPastDate = selectedDate.isBefore(DateTime.now());
 
     return Column(
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.all(16),
@@ -144,13 +172,15 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: _getBedColor(bedStatus[index]),
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Center(
                     child: Text(
                       'Bed ${index + 1}',
-                      style: const TextStyle(color: Colors.white),
+                      style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.black,
+                    )
                     ),
                   ),
                 ),
@@ -162,7 +192,11 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'Selected Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style:  GoogleFonts.poppins(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+    ),
           ),
         ),
         _buildLegend(),
@@ -175,8 +209,18 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Bed ${index + 1}'),
-          content: Text('Do you want to see details or cancel?'),
+          backgroundColor: Colors.white,
+          title: Text('Bed ${index + 1}',    style: GoogleFonts.poppins(
+            fontSize: 20,
+            color: Colors.black,
+            fontWeight: FontWeight.bold
+          ),),
+          content:  Text('Do you want to see details or cancel?', style: GoogleFonts.poppins(
+            fontSize: 16,
+            // fontWeight: FontWeight.bold,
+            color: Colors.black,
+          )
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -188,13 +232,23 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                   ),
                 );
               },
-              child: Text('Details'),
+              child: Text('Details',
+              style:   GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrangeAccent,
+                ),),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text('Cancel',
+                style:   GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade400,
+                ),),
             ),
           ],
         );
@@ -207,10 +261,23 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Bed ${index + 1}'),
+          backgroundColor: Colors.white,
+          title: Text('Bed ${index + 1}',style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ) ,),
           content: bedState == BedState.booked
-              ? Text('Do you want to see details or vacate the bed?')
-              : Text('Do you want to book this bed?'),
+              ?  Text('Do you want to see details or vacate the bed?',style: GoogleFonts.poppins(
+            fontSize: 16,
+            color: Colors.black,
+          )
+          )
+              :  Text('Do you want to book this bed?',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.black,
+              ) ),
           actions: [
             if (bedState == BedState.booked)
               TextButton(
@@ -223,7 +290,11 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                     ),
                   );
                 },
-                child: Text('Details'),
+                child:  Text('Details',style:  GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.deepOrangeAccent,
+                )
+                ),
               ),
             if (bedState == BedState.booked)
               TextButton(
@@ -233,7 +304,13 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                   });
                   Navigator.of(context).pop();
                 },
-                child: Text('Vacant'),
+                child: Text('Vacant',
+                    style:  GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange.shade300,
+                    )
+                ),
               ),
             if (bedState == BedState.vacant)
               TextButton(
@@ -246,21 +323,30 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                       builder: (context) => AddEmployeeScreen(bedIndex: index),
                     ),
                   );
-                  // Update the bed status only if successfully booked
                   if (bookedIndex != null) {
                     setState(() {
-                      bedStatusByDate[selectedDate]![bookedIndex] =
-                          BedState.booked;
+                      bedStatusByDate[selectedDate]![bookedIndex] = BedState.booked;
                     });
                   }
                 },
-                child: Text('Book'),
+                child:  Text('Book',
+                    style:  GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepOrangeAccent,
+                    )
+                ),
               ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child:  Text('Cancel',
+                  style:  GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green.shade400,
+                  )),
             ),
           ],
         );
@@ -271,9 +357,9 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
   Color _getBedColor(BedState state) {
     switch (state) {
       case BedState.vacant:
-        return Colors.grey.shade400;
+        return Colors.orange.shade300;
       case BedState.booked:
-        return Colors.orange.shade400;
+        return Colors.green.shade400;
       default:
         return Colors.white;
     }
@@ -285,8 +371,8 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _legendItem(Colors.grey.shade400, 'Vacant'),
-          _legendItem(Colors.orange.shade400, 'Booked'),
+          _legendItem(Colors.orange.shade300, 'Vacant'),
+          _legendItem(Colors.green.shade400, 'Booked'),
         ],
       ),
     );
@@ -300,8 +386,12 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           height: 20,
           color: color,
         ),
-        SizedBox(width: 8),
-        Text(label),
+        const SizedBox(width: 8),
+        Text(label,
+        style:         GoogleFonts.poppins(
+    fontSize: 14,
+    color: Colors.black,
+    )),
       ],
     );
   }
@@ -336,15 +426,19 @@ class AddEmployeeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Employee'),
+        title: Text('Add Employee for Bed $bedIndex'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigator
-            // Navigator.pop(context, bedIndex);
-          },
-          child: Text('Book Bed'),
+        child: Column(
+          children: [
+            const Text('Employee Form'),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, bedIndex);
+              },
+              child: const Text('Book'),
+            ),
+          ],
         ),
       ),
     );
