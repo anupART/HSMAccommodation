@@ -1,4 +1,7 @@
+import 'package:accomodation_app/screens/bottom_nav_bar.dart';
+import 'package:accomodation_app/screens/login_screen.dart';
 import 'package:accomodation_app/screens/new_home.dart';
+import 'package:accomodation_app/screens/tp.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,6 +15,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
-        home: HSMAccommodation());
+        // home: LoadMoreInfiniteScrollingDemo()
+        // home: HSMAccommodation()
+        home: SignInScreen()
+
+    );
   }
 }

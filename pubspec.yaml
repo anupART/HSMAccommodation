@@ -40,7 +40,14 @@ dependencies:
   flutter_calendar_week: ^3.0.2
   book_my_seat: ^1.0.1
   get: ^4.6.6
+  timelines: ^0.1.0
+  animated_notch_bottom_bar: ^1.0.3
   table_calendar: ^3.0.9
+  syncfusion_flutter_datagrid: ^27.1.48
+  font_awesome_flutter: ^10.7.0
+  booking_calendar: ^1.1.10
+  chips_choice: ^3.0.1
+
   # intl: ^0.19.0
 
 dev_dependencies:
@@ -81,12 +88,13 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  fonts:
+     - family: Poppins
+       fonts:
+         - asset: assets/fonts/Poppins-Light.ttf
+         - asset: assets/fonts/Poppins-Medium.ttf
+         - asset: assets/fonts/Poppins-SemiBold.ttf
+#           style: italic
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

@@ -334,4 +334,104 @@
 // // 1. like above working of booking good i want that the the dates from todays should be visble but not editibale ,
 // // 2.   that when first time i visist page the i can see all vacant and booked dates but when i try to , come again at todays date aftre scrooling another dates i can not see any the data of book and vacant data gone , all grid/container/bed becomes vacant 
 // // 3. the booking is not working on others date mneands aftre the todays dat till month 
-// // solve all teree isuue and give me final code 
+// // solve all teree isuue and give me final code
+
+
+
+class _CalendarBedBookingState extends State<HSMAccommodation> {
+  // ... (previous code remains the same)
+
+  Widget _buildBedLayout() {
+    List<BedState> bedStatus = bedStatusByDate[selectedDate] ??
+        List.generate(18, (index) => BedState.vacant);
+    List<BedState> filteredBedStatus = _getFilteredBedStatus(bedStatus);
+
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                if (selectedFilter != 'Boys') ...[
+                  _buildRoomSection('Girls', filteredBedStatus.sublist(0, 8), 0),
+                ],
+                if (selectedFilter == 'All')
+                  SizedBox(height: 16),
+                if (selectedFilter != 'Girls') ...[
+                  _buildRoomSection('Boys', filteredBedStatus.sublist(8), 8),
+                ],
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Selected Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        _buildLegend(),
+      ],
+    );
+  }
+
+  Widget _buildRoomSection(String title, List<BedState> sectionBedStatus, int startIndex) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepOrangeAccent,
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildRoomNumber(startIndex ~/ 4 + 1),
+              _buildRoomNumber(startIndex ~/ 4 + 2),
+            ],
+          ),
+          SizedBox(height: 8),
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: 1.5,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              padding: EdgeInsets.zero,
+              children: [
+                _buildBedGroup(sectionBedStatus.sublist(0, 4), startIndex),
+                _buildBedGroup(sectionBedStatus.sublist(4, 8), startIndex + 4),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ... (rest of the code remains the same)
+
+  List<BedState> _getFilteredBedStatus(List<BedState> bedStatus) {
+    if (selectedFilter == 'All') {
+      return bedStatus;
+    } else if (selectedFilter == 'Girls') {
+      return bedStatus.sublist(0, 8);
+    } else if (selectedFilter == 'Boys') {
+      return bedStatus.sublist(8);
+    }
+    return bedStatus;
+  }
+}
