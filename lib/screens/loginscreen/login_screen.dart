@@ -1,4 +1,4 @@
-import 'package:accomodation_app/screens/bottom_nav_bar.dart';
+import 'package:accomodation_app/screens/bootomnavbar/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -20,7 +20,7 @@ class _SignInScreenState extends State<SignInScreen> {
         children: [
            Expanded(
             flex: 1,
-            child: Container(
+            child: SizedBox(
               height: 10,
               child: Padding(
                 padding: const EdgeInsets.only(top: 25),

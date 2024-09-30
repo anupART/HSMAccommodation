@@ -16,8 +16,9 @@
 
 import 'package:flutter/material.dart';
 
-// Define your own custom color variables
+
 Color myPrimaryColor =Colors.deepOrangeAccent;
+// deepOrangeAccent color given to tab bar text, button, selected date in calender
  Color myOnSecondaryColor = Colors.orange;
-Color bookedColor = Colors.orange.shade400;
-Color vacantColor = Colors.green.shade400;
+Color vacantColor = Colors.orange.shade300;
+Color bookedColor = Colors.green.shade300;

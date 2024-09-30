@@ -1,9 +1,12 @@
-import 'package:accomodation_app/screens/profilepage.dart';
+import 'package:accomodation_app/screens/bookingpage/booking_page.dart';
+import 'package:accomodation_app/screens/profilepage/profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:math';
+
+import '../../style/color.dart';
 
 
 Color _getBedColor(BedState state) {
@@ -25,7 +28,7 @@ Widget _detailItem(String label, String value) {
         Text(
           '$label: ',
           style: GoogleFonts.poppins(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -34,7 +37,7 @@ Widget _detailItem(String label, String value) {
           child: Text(
             value,
             style: GoogleFonts.poppins(
-              fontSize: 16,
+              fontSize: 15,
               color: Colors.grey.shade600,
             ),
             overflow: TextOverflow.ellipsis,
@@ -51,9 +54,9 @@ Widget _buildLegend() {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _legendItem(Colors.green.shade300, 'Vacant'),
+        _legendItem(bookedColor, 'Booked'),
         const SizedBox(width: 16),
-        _legendItem(Colors.orange.shade300, 'Booked'),
+        _legendItem(vacantColor, 'Vacant'),
       ],
     ),
   );
@@ -91,6 +94,7 @@ class AddEmployeeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          automaticallyImplyLeading: false,
         title: Text('Add Employee for Bed $bedIndex'),
       ),
       body: Center(
@@ -145,7 +149,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
   late DateTime focusedDate;
   Map<int, BedDetails> bedDetailsByIndex = {};
   String selectedFilter = 'All';
-
+  List<BedState> _filteredBedStatus = [];
   @override
   void initState() {
     super.initState();
@@ -160,64 +164,70 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       onWillPop: () async {
         return false;
       },
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
+      child: GestureDetector(
+        onTap: () {
+          // This will dismiss the keyboard when tapping outside of a text field
+          FocusScope.of(context).unfocus();
+        },
+        child: SafeArea(
+          child: Scaffold(
             backgroundColor: Colors.white,
-            title: Text(
-              'HSM Accommodation',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            // appBar: AppBar(
+            //   backgroundColor: Colors.white,
+            //   title: Text(
+            //     'HSM Accommodation',
+            //     style: GoogleFonts.poppins(
+            //       fontSize: 20,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            //   actions: [
+            //     Padding(
+            //       padding: const EdgeInsets.only(right: 20, top: 10, bottom: 3),
+            //       child: Container(
+            //         width: 35,
+            //         height: 35,
+            //         decoration: BoxDecoration(
+            //           color: Colors.orange.shade300,
+            //           shape: BoxShape.circle,
+            //         ),
+            //         child: Center(
+            //           child: IconButton(
+            //             color: Colors.red,
+            //
+            //             onPressed: (){
+            //               Navigator.push(context, MaterialPageRoute(builder: (context)=>const ProfilePage()));
+            //             },
+            //             icon: const Center(
+            //               child: Icon(
+            //                 Icons.person,
+            //                 size: 23,
+            //                 color: Colors.white,
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            body: Column(
+              children: [
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 1.05,
+                  child: Card(
+                    elevation: 6,
+                    color: Colors.white,
+                    child: _buildTableCalendar(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildChoiceChips(),
+                const SizedBox(height: 5),
+                Expanded(child: _buildBedLayout()),
+              ],
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 20, top: 10, bottom: 3),
-                child: Container(
-                  width: 35,
-                  height: 35,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade300,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: IconButton(
-                      color: Colors.red,
-
-                      onPressed: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>const ProfilePage()));
-                      },
-                      icon: const Center(
-                        child: Icon(
-                          Icons.person,
-                          size: 23,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-              const SizedBox(height: 8),
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 1.05,
-                child: Card(
-                  elevation: 6,
-                  color: Colors.white,
-                  child: _buildTableCalendar(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildChoiceChips(),
-              const SizedBox(height: 5),
-              Expanded(child: _buildBedLayout()),
-            ],
           ),
         ),
       ),
@@ -226,7 +236,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
 
   Widget _buildChoiceChips() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7,horizontal: 7),
+      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -246,7 +256,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepOrangeAccent,
+                  color: myPrimaryColor,
                 ),
               ),
               selected: selectedFilter == 'All',
@@ -277,7 +287,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepOrangeAccent,
+                  color: myPrimaryColor,
                 ),
               ),
               selected: selectedFilter == 'Girls',
@@ -308,7 +318,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepOrangeAccent,
+                  color: myPrimaryColor,
                 ),
               ),
               selected: selectedFilter == 'Boys',
@@ -336,7 +346,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
             decoration: BoxDecoration(
-              color: Colors.deepOrangeAccent,
+              color: myPrimaryColor,
               borderRadius: BorderRadius.circular(5),
             ),
             child: Text(
@@ -384,12 +394,12 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: _buildBedGroup(filteredBedStatus.sublist(0, 4), 0, 1)),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(child: _buildBedGroup(filteredBedStatus.sublist(4, 9), 4, 2)),
                       ],
                     ),
                   ),
-                  SizedBox(height: 3),
+                  const SizedBox(height: 3),
                 ],
                 if (selectedFilter != 'Girls') ...[
                   Expanded(
@@ -397,7 +407,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: _buildBedGroup(filteredBedStatus.sublist(0, 4), 9, 3)),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(child: _buildBedGroup(filteredBedStatus.sublist(4, 9), 13, 4)),
                       ],
                     ),
@@ -426,7 +436,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
 
   Widget _buildBedGroup(List<BedState> groupBedStatus, int startIndex,int roomNumber) {
     return Container(
-
+padding: EdgeInsets.zero,
       decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -435,9 +445,9 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
               spreadRadius: 0,
               blurRadius: 10,
               blurStyle: BlurStyle.normal,
-              offset: Offset(5, 5),
+              offset: const Offset(5, 5),
             ),
-            BoxShadow(
+            const BoxShadow(
               color: Colors.white,
               spreadRadius: 0,
               blurRadius: 10,
@@ -449,9 +459,9 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
         // border: Border.all(color: Colors.black)
       ),
 
-      height: MediaQuery.of(context).size.height / 4,
+      height: MediaQuery.of(context).size.height / 5.3,
       width: MediaQuery.of(context).size.width / 3,
-      margin: EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       child: Column(
         children: [
           _buildRoomNumber(roomNumber),
@@ -464,7 +474,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 2.4,
+                  childAspectRatio: 2.7,
                   crossAxisSpacing: 8,
                   mainAxisSpacing:8 ,
                 ),
@@ -498,8 +508,13 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
     );
   }
 
+
+
   Widget _buildTableCalendar() {
     return TableCalendar(
+      startingDayOfWeek: StartingDayOfWeek.monday,
+      // firstDay: DateTime.now().subtract(const Duration(days: 365)),
+      // lastDay: DateTime.now().add(const Duration(days: 365)),
       focusedDay: focusedDate,
       firstDay: DateTime.now().subtract(const Duration(days: 30)),
       lastDay: DateTime.now().add(const Duration(days: 60)),
@@ -515,17 +530,17 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
         titleTextStyle: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Colors.deepOrangeAccent,
+          color: myPrimaryColor,
         ),
         formatButtonVisible: false,
         titleCentered: true,
-        leftChevronIcon: const Icon(
+        leftChevronIcon: Icon(
           Icons.chevron_left,
-          color: Colors.deepOrangeAccent,
+          color: myPrimaryColor,
         ),
-        rightChevronIcon: const Icon(
+        rightChevronIcon: Icon(
           Icons.chevron_right,
-          color: Colors.deepOrangeAccent,
+          color:myPrimaryColor,
         ),
       ),
       calendarStyle: CalendarStyle(
@@ -554,20 +569,20 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           color: Colors.grey.shade600,
         ),
         todayDecoration: BoxDecoration(
-          color: Colors.orange.shade400,
+          color: Colors.orangeAccent,
           shape: BoxShape.circle,
         ),
-        selectedDecoration: const BoxDecoration(
-          color: Colors.deepOrange,
+        selectedDecoration: BoxDecoration(
+          color: myPrimaryColor,
           shape: BoxShape.circle,
         ),
       ),
-      enabledDayPredicate: (day) {
-        return day.isAfter(DateTime.now()) || isSameDay(day, DateTime.now());
-      },
+      // enabledDayPredicate: (day) {
+      //   return day.isAfter(DateTime.now()) || isSameDay(day, DateTime.now());
+      // },
+      enabledDayPredicate: (day) => true,
     );
   }
-
 
   void _showBedDialog(int index, BedState bedState) {
     showDialog(
@@ -578,13 +593,12 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           title: Text(
             'Bed ${index + 1}',
             style: GoogleFonts.poppins(
-              fontSize: 18,
+              fontSize: 19,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),
-          // Reverse the condition to show the correct dialog
-          content: bedState == BedState.vacant
+          content: bedState == BedState.booked
               ? Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,7 +606,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
               Text(
                 'Current Booking Details:',
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -605,9 +619,6 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 _detailItem('Start Date', bedDetailsByIndex[index]!.startDate),
                 _detailItem('End Date', bedDetailsByIndex[index]!.endDate),
               ],
-
-
-
               const SizedBox(height: 10),
               Text(
                 'Do you want to extend or vacate this bed?',
@@ -626,8 +637,16 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
             ),
           ),
           actions: [
-            if (bedState == BedState.vacant) ...[
+            if (bedState == BedState.booked) ...[
               TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.orange.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
                 onPressed: () async {
                   DateTime? newEndDate = await _selectEndDate(
                       context, bedDetailsByIndex[index]!.endDate);
@@ -641,42 +660,64 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepOrangeAccent,
+                    color: myPrimaryColor,
                   ),
                 ),
               ),
               TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.green.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
                 onPressed: () {
-                  setState(() {
-                    bedStatusByDate[selectedDate]![index] = BedState.vacant;
-                    bedDetailsByIndex.remove(index);
-                  });
-                  Navigator.of(context).pop();
+                  _showVacateConfirmationDialog(context, index);
                 },
                 child: Text(
                   'Vacant',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade400,
+                    color: bookedColor,
                   ),
                 ),
               ),
             ],
-            if (bedState == BedState.booked)
+            if (bedState == BedState.vacant)
               TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.orange.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  int? bookedIndex = await Navigator.push(
+                  dynamic result= await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddEmployeeScreen(bedIndex: index),
+                      builder: (context) => BookingPage()
+
                     ),
                   );
-                  if (bookedIndex != null) {
+                  if (result != null) {
                     setState(() {
-                      bedStatusByDate[selectedDate]![bookedIndex] =
-                          BedState.booked;
+                      bedStatusByDate[selectedDate]![index] = BedState.booked;
+                      bedDetailsByIndex[index] = BedDetails(
+                          roomNumber: result['roomNumber'],
+                          employeeName: result['employeeName'],
+                          department: result['department'],
+                          startDate: DateFormat('yyyy-MM-dd').format(result['startDate']),
+                      endDate: DateFormat('yyyy-MM-dd').format(result['endDate']),
+                      );
+                      List<BedState> bedStatus = bedStatusByDate[selectedDate] ??
+                          List.generate(18, (index) => BedState.vacant);
+                      List<BedState> filteredBedStatus = _getFilteredBedStatus(bedStatus);
                     });
                   }
                 },
@@ -685,11 +726,19 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepOrangeAccent,
+                    color: myPrimaryColor,
                   ),
                 ),
               ),
             TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -708,9 +757,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
     );
   }
 
-
-  void _showConfirmationDialog(BuildContext context, int index,
-      BedDetails bedDetails, DateTime newEndDate) {
+  void _showConfirmationDialog(BuildContext context, int index, BedDetails bedDetails, DateTime newEndDate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -725,8 +772,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
             ),
           ),
           content: Text(
-            'Do you want to extend the end date to ${DateFormat('yyyy-MM-dd')
-                .format(newEndDate)}?',
+            'Do you want to extend the end date to ${DateFormat('yyyy-MM-dd').format(newEndDate)}?',
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: Colors.black,
@@ -734,11 +780,20 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           ),
           actions: [
             TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               onPressed: () {
                 setState(() {
-                  bedDetails.endDate =
-                      DateFormat('yyyy-MM-dd').format(newEndDate);
+                  bedDetails.endDate = DateFormat('yyyy-MM-dd').format(newEndDate);
+                  bedStatusByDate[selectedDate]![index] = BedState.booked;
                 });
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
                 _showBedDialog(index, BedState.booked);
               },
@@ -747,11 +802,93 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green.shade400,
+                  color: bookedColor,
                 ),
               ),
             ),
             TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'No',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _showVacateConfirmationDialog(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Confirm Vacate',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to vacate this bed?',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+          actions: [
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  bedStatusByDate[selectedDate]![index] = BedState.vacant;
+                  bedDetailsByIndex.remove(index);
+                });
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Yes',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: bookedColor,
+                ),
+              ),
+            ),
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -781,9 +918,9 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
               headerBackgroundColor: Colors.orange.shade400,
               headerForegroundColor: Colors.white,
             ),
-            dialogBackgroundColor: Colors.orange,
-            colorScheme: const ColorScheme.light(
-              primary: Colors.deepOrangeAccent,
+            dialogBackgroundColor: myOnSecondaryColor,
+            colorScheme:  ColorScheme.light(
+              primary: myPrimaryColor,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -803,19 +940,48 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       context: context,
       initialDate: initialDate,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     return pickedDate;
   }
 
+
+  // void _initializeBedStatus() {
+  //   for (int i = 0; i < 30; i++) {
+  //     DateTime date = DateTime.now().add(Duration(days: i));
+  //     if (!bedStatusByDate.containsKey(date)) {
+  //       bedStatusByDate[date] = List.filled(18, BedState.vacant);
+  //
+  //       // Randomly book a few beds
+  //       for (int j = 0; j < 5; j++) { // Randomly booking 5 beds
+  //         int bookedIndex = Random().nextInt(18);
+  //         bedStatusByDate[date]![bookedIndex] = BedState.booked;
+  //
+  //         // Initialize bed details for booked beds
+  //         bedDetailsByIndex[bookedIndex] = BedDetails(
+  //           roomNumber: 'Room ${bookedIndex + 100}',
+  //           employeeName: 'Employee ${bookedIndex + 1}',
+  //           department: 'Dept ${bookedIndex % 5}',
+  //           startDate: DateFormat('yyyy-MM-dd').format(
+  //               date.subtract(const Duration(days: 5))),
+  //           endDate: DateFormat('yyyy-MM-dd').format(
+  //               date.add(const Duration(days: 5))),
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
   void _initializeBedStatus() {
-    for (int i = 0; i < 30; i++) {
-      DateTime date = DateTime.now().add(Duration(days: i));
+    // DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
+    // DateTime endDate = DateTime.now().add(const Duration(days: 30));
+    DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
+    DateTime endDate = DateTime.now().add(const Duration(days: 365));
+    for (DateTime date = startDate; date.isBefore(endDate); date = date.add(const Duration(days: 1))) {
       if (!bedStatusByDate.containsKey(date)) {
         bedStatusByDate[date] = List.filled(18, BedState.vacant);
 
         // Randomly book a few beds
-        for (int j = 0; j < 5; j++) { // Randomly booking 5 beds
+        for (int j = 0; j < 5; j++) {
           int bookedIndex = Random().nextInt(18);
           bedStatusByDate[date]![bookedIndex] = BedState.booked;
 
@@ -824,17 +990,17 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
             roomNumber: 'Room ${bookedIndex + 100}',
             employeeName: 'Employee ${bookedIndex + 1}',
             department: 'Dept ${bookedIndex % 5}',
-            startDate: DateFormat('yyyy-MM-dd').format(
-                date.subtract(const Duration(days: 5))),
-            endDate: DateFormat('yyyy-MM-dd').format(
-                date.add(const Duration(days: 5))),
+            startDate: DateFormat('yyyy-MM-dd').format(date.subtract(const Duration(days: 5))),
+            endDate: DateFormat('yyyy-MM-dd').format(date.add(const Duration(days: 5))),
           );
         }
       }
     }
   }
-
 }
 
-// i want  that romm no go from 1 to 4 , count incse till 4 and ther eis an isuue that grid view f=grip show bottom overflowed 18
-// only work on that do not chage any other thing
+// why the data from booking page , after doing save booing showuld show in details dualog of an booked bed after clsikno on data of booking page for that partcvua;r bed ,
+// convrsuion si happeing slow
+//// so here i will go to the booking page and fill the deatils after that clicking on save booking we it will save te data and come back to home crseen by chnaging the clor of griid as it was doing currently
+//                           // AddEmployeeScreen(bedIndex: index),
+

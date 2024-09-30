@@ -93,4 +93,3 @@ class BedDetailsPage extends StatelessWidget {
     );
   }
 }
-// but i ndnot nither page i want when i clickk on dialog box i want dialog box to come not reditet inn another but shwo it in  dialof woitntitle := bed no, content: all deatl , acion vcanat and cancel button in cuertino dialog box

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'bottom_nav_bar.dart';
-import 'new_home.dart';
+import '../bootomnavbar/bottom_nav_bar.dart';
+import '../homescreen/new_home.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -60,7 +60,7 @@ class _BookingPageState extends State<BookingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:  Colors.white,
-      appBar: AppBar(
+      // appBar: AppBar(
         // leading: Navigator.pop(),
         // leading: IconButton(
         //   // Within the `FirstRoute` widget:
@@ -72,15 +72,15 @@ class _BookingPageState extends State<BookingPage> {
         //     },
         //     icon:  Icon(Icons.arrow_back_ios,size: 23,)),
         // centerTitle: true,
-        title: const Text(
-          'Booking',
-          style: TextStyle(
-              color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+        // title: const Text(
+        //   'Booking',
+        //   style: TextStyle(
+        //       color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
+        // ),
+        // backgroundColor: Colors.white,
+        // elevation: 0,
+        // iconTheme: const IconThemeData(color: Colors.black),
+      // ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -247,14 +247,45 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
+  // Widget _buildSaveButton() {
+  //   return Center(
+  //     child: ElevatedButton(
+  //       onPressed: () {
+  //         // Save action
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         foregroundColor: Colors.white, backgroundColor: Colors.deepOrangeAccent,
+  //         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(30),
+  //         ),
+  //         elevation: 5,
+  //       ),
+  //       child: const Text(
+  //         'Save Booking',
+  //         style: TextStyle(fontSize: 18),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+
   Widget _buildSaveButton() {
     return Center(
       child: ElevatedButton(
         onPressed: () {
-          // Save action
+
+          Navigator.pop(context, {
+            'bedIndex': _selectedBedNo,
+            'roomNumber': _selectedBedNo,
+            'employeeName': 'Kshitija Bais',
+            'department': 'IT',
+            'startDate': _startDate,
+            'endDate': _endDate,
+          });
         },
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white, backgroundColor: Colors.deepOrange,
+          foregroundColor: Colors.white, backgroundColor: Colors.deepOrangeAccent,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
