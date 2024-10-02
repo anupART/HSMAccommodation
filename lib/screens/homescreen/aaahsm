@@ -1,8 +1,10 @@
 import 'dart:convert';
+// do not chnage any logic just chnage the code basic of an for only repeating code craeted widet and use like i have create _ButtonBlack but only style is same other thinghs are not so it will be not that useful sp chacke what is coommand , wholy reaedrte only make that widge comman
+// and also create some optmize things i ony need that will somehat decra the length if code ony if it dosent not change logic,working and ui of code
+
 import 'package:accomodation_app/screens/bookingpage/booking_page.dart';
-import 'package:accomodation_app/screens/homescreen/home_model.dart';
+import 'package:accomodation_app/screens/profilepage/profilepage.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -10,6 +12,98 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../../style/color.dart';
 
+class HomeModel {
+  bool? success;
+  Data? data;
+
+  HomeModel({this.success, this.data});
+
+  HomeModel.fromJson(Map<String, dynamic> json) {
+    success = json['success'];
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['success'] = this.success;
+    if (this.data != null) {
+      data['data'] = this.data!.toJson(); // Use ! to tell Dart this is non-null
+    }
+    return data;
+  }
+}
+
+class Data {
+  List<VacantBeds>? vacantBeds;
+  List<BookedBeds>? bookedBeds; // Replace Null with the correct type
+
+  Data({this.vacantBeds, this.bookedBeds});
+
+  Data.fromJson(Map<String, dynamic> json) {
+    if (json['vacantBeds'] != null) {
+      vacantBeds = <VacantBeds>[];
+      json['vacantBeds'].forEach((v) {
+        vacantBeds!.add(VacantBeds.fromJson(v));
+      });
+    }
+    if (json['bookedBeds'] != null) {
+      bookedBeds = <BookedBeds>[]; // Use the correct type here
+      json['bookedBeds'].forEach((v) {
+        bookedBeds!.add(BookedBeds.fromJson(v)); // Replace Null.fromJson
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (vacantBeds != null) {
+      data['vacantBeds'] = vacantBeds!.map((v) => v.toJson()).toList();
+    }
+    if (bookedBeds != null) {
+      data['bookedBeds'] = bookedBeds!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class VacantBeds {
+  int? roomNumber;
+  int? bedNumber;
+
+  VacantBeds({this.roomNumber, this.bedNumber});
+
+  VacantBeds.fromJson(Map<String, dynamic> json) {
+    roomNumber = json['roomNumber'];
+    bedNumber = json['bedNumber'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['roomNumber'] = roomNumber;
+    data['bedNumber'] = bedNumber;
+    return data;
+  }
+}
+
+// Assuming you need a model for bookedBeds, replace it with an appropriate one
+class BookedBeds {
+  int? roomNumber;
+  int? bedNumber;
+
+  BookedBeds({this.roomNumber, this.bedNumber});
+
+  BookedBeds.fromJson(Map<String, dynamic> json) {
+    roomNumber = json['roomNumber'];
+    bedNumber = json['bedNumber'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['roomNumber'] = roomNumber;
+    data['bedNumber'] = bedNumber;
+    return data;
+  }
+}
 
 Color _getBedColor(BedState state) {
   switch (state) {
@@ -21,6 +115,7 @@ Color _getBedColor(BedState state) {
       return Colors.white;
   }
 }
+
 Widget _detailItem(String label, String value) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -48,9 +143,10 @@ Widget _detailItem(String label, String value) {
     ),
   );
 }
+
 Widget _buildLegend() {
   return Padding(
-    padding: const EdgeInsets.only(bottom: 25,left: 16,right: 16),
+    padding: const EdgeInsets.only(bottom: 25, left: 16, right: 16),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -61,6 +157,7 @@ Widget _buildLegend() {
     ),
   );
 }
+
 Widget _legendItem(Color color, String label) {
   return Row(
     children: [
@@ -78,7 +175,9 @@ Widget _legendItem(Color color, String label) {
     ],
   );
 }
+
 enum BedState { vacant, booked }
+
 class AddEmployeeScreen extends StatelessWidget {
   final int bedIndex;
 
@@ -88,7 +187,7 @@ class AddEmployeeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false,
         title: Text('Add Employee for Bed $bedIndex'),
       ),
       body: Center(
@@ -107,6 +206,7 @@ class AddEmployeeScreen extends StatelessWidget {
     );
   }
 }
+
 class BedDetails {
   final String roomNumber;
   final String employeeName;
@@ -122,22 +222,26 @@ class BedDetails {
     required this.endDate,
   });
 }
+
 void main() {
   runApp(MaterialApp(home: HSMAccommodation()));
 }
+
 class HSMAccommodation extends StatefulWidget {
   HSMAccommodation({this.index, super.key});
   int? index;
+
   @override
   _CalendarBedBookingState createState() => _CalendarBedBookingState();
 }
-class _CalendarBedBookingState extends State<HSMAccommodation> {
 
+class _CalendarBedBookingState extends State<HSMAccommodation> {
   late DateTime selectedDate;
   Map<DateTime, List<BedState>> bedStatusByDate = {};
   late DateTime focusedDate;
   Map<int, BedDetails> bedDetailsByIndex = {};
   String selectedFilter = 'All';
+  List<BedState> _filteredBedStatus = [];
 
   @override
   void initState() {
@@ -146,10 +250,17 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
     focusedDate = DateTime.now();
     _initializeBedStatus();
   }
+  Future<HomeModel> fetchHomeModel() async {
+    final response = await http.get(Uri.parse('https://beds-accomodation.vercel.app/api/checkBeds'));
 
+    if (response.statusCode == 200) {
+      return HomeModel.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load home model');
+    }
+  }
   @override
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -161,7 +272,6 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
         child: SafeArea(
           child: Scaffold(
             backgroundColor: Colors.white,
-
             body: Column(
               children: [
                 const SizedBox(height: 8),
@@ -176,7 +286,44 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 const SizedBox(height: 10),
                 _buildChoiceChips(),
                 const SizedBox(height: 5),
-                Expanded(child: _buildBedLayout()),
+                Expanded(
+                  child: FutureBuilder<HomeModel>(
+                    future: fetchHomeModel(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Column(
+                          children: [
+                            Text('Vacant Beds:'),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data!.data!.vacantBeds!.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text('Room Number: ${snapshot.data!.data!.vacantBeds![index].roomNumber}'),
+                                  subtitle: Text('Bed Number: ${snapshot.data!.data!.vacantBeds![index].bedNumber}'),
+                                );
+                              },
+                            ),
+                            Text('Booked Beds:'),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data!.data!.bookedBeds!.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text('Room Number: ${snapshot.data!.data!.bookedBeds![index].roomNumber}'),
+                                  subtitle: Text('Bed Number: ${snapshot.data!.data!.bookedBeds![index].bedNumber}'),
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      return CircularProgressIndicator();
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -184,9 +331,10 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       ),
     );
   }
+
   Widget _buildChoiceChips() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -287,11 +435,12 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       ),
     );
   }
+
   Widget _buildRoomNumber(int roomNumber) {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 8,left: 8,right: 4),
+          padding: const EdgeInsets.only(top: 8, left: 8, right: 4),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
             decoration: BoxDecoration(
@@ -312,105 +461,76 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
     );
   }
 
-  List<BedState> _getFilteredBedStatus(List<BedState> bedStatus, String filterType) {
-    if (filterType == 'All') {
+  List<BedState> _getFilteredBedStatus(List<BedState> bedStatus) {
+    if (selectedFilter == 'All') {
       return bedStatus;
-    } else if (filterType == 'Male') {
+    } else if (selectedFilter == 'Girls') {
       return bedStatus.sublist(0, 9);
-    } else if (filterType == 'Female') {
+    } else if (selectedFilter == 'Boys') {
       return bedStatus.sublist(9, 18);
     }
     return bedStatus;
   }
+
   Widget _buildBedLayout() {
-    return FutureBuilder<HomeModel>(
-      future: fetchItems(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          HomeModel homeModel = snapshot.data!;
-          Map<int, BedState> bedStatusMap = {};
-
-          // Process vacant beds
-          for (var bed in homeModel.data?.vacantBeds ?? []) {
-            bedStatusMap[bed.bedNumber!] = BedState.vacant;
-          }
-
-          // Process booked beds
-          for (var bed in homeModel.data?.bookedBeds ?? []) {
-            bedStatusMap[bed.bedNumber!] = BedState.booked;
-            bedDetailsByIndex[bed.bedNumber!] = BedDetails(
-              roomNumber: 'Room ${bed.roomNumber}',
-              employeeName: bed.employee ?? '',
-              department: 'Dept',
-              startDate: bed.loggedInDate ?? '',
-              endDate: bed.loggedOutDate ?? '',
-            );
-          }
-
-          List<int> girlsBedNumbers = List.generate(9, (index) => index + 1);
-          List<int> boysBedNumbers = List.generate(9, (index) => index + 10);
-
-          return Column(
-            children: [
-              const SizedBox(height: 20),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (selectedFilter != 'Boys') ...[
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(child: _buildBedGroup(girlsBedNumbers.sublist(0, 4), 101, bedStatusMap)),
-                              const SizedBox(width: 10),
-                              Expanded(child: _buildBedGroup(girlsBedNumbers.sublist(4, 9), 102, bedStatusMap)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 3),
+    List<BedState> bedStatus = bedStatusByDate[selectedDate] ??
+        List.generate(18, (index) => BedState.vacant);
+    List<BedState> filteredBedStatus = _getFilteredBedStatus(bedStatus);
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                if (selectedFilter != 'Boys') ...[
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: _buildBedGroup(filteredBedStatus.sublist(0, 4), 0, 1)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _buildBedGroup(filteredBedStatus.sublist(4, 9), 4, 2)),
                       ],
-                      if (selectedFilter != 'Girls') ...[
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(child: _buildBedGroup(boysBedNumbers.sublist(0, 4), 103, bedStatusMap)),
-                              const SizedBox(width: 10),
-                              Expanded(child: _buildBedGroup(boysBedNumbers.sublist(4, 9), 104, bedStatusMap)),
-                            ],
-                          ),
-                        ),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                ],
+                if (selectedFilter != 'Girls') ...[
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: _buildBedGroup(filteredBedStatus.sublist (0, 4), 9, 3)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _buildBedGroup(filteredBedStatus.sublist(4, 9), 13, 4)),
                       ],
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Selected Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              _buildLegend(),
-            ],
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      },
+                ],
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Selected Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        _buildLegend(),
+      ],
     );
   }
-  Widget _buildBedGroup(List<int> bedNumbers, int roomNumber, Map<int, BedState> bedStatusMap) {
+
+  Widget _buildBedGroup(List<BedState> groupBedStatus, int startIndex, int roomNumber) {
     return Container(
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
@@ -432,9 +552,10 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           ),
         ],
         borderRadius: BorderRadius.circular(10),
+        // border: Border.all(color: Colors.black)
       ),
-      height: Get.size.height / 5.3,
-      width: Get.size.width / 3,
+      height: MediaQuery.of(context).size.height / 5.3,
+      width: MediaQuery.of(context).size.width / 3,
       margin: const EdgeInsets.all(8),
       child: Column(
         children: [
@@ -452,20 +573,19 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
-                itemCount: bedNumbers.length,
+                itemCount: groupBedStatus.length,
                 itemBuilder: (context, index) {
-                  int bedNumber = bedNumbers[index];
-                  BedState bedState = bedStatusMap[bedNumber] ?? BedState.vacant;
+                  int bedIndex = startIndex + index;
                   return GestureDetector(
-                    onTap: () => _showBedDialog(bedNumber, bedState),
+                    onTap: () => _showBedDialog(bedIndex, groupBedStatus[index]),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _getBedColor(bedState),
+                        color: _getBedColor(groupBedStatus[index]),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Center(
                         child: Text(
-                          'Bed $bedNumber',
+                          'Bed ${bedIndex + 1}',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.black,
@@ -487,8 +607,8 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
     return TableCalendar(
       startingDayOfWeek: StartingDayOfWeek.monday,
       focusedDay: focusedDate,
-      firstDay: DateTime.now().subtract(const Duration(days: 90)),
-      lastDay: DateTime.now().add(const Duration(days: 90)),
+      firstDay: DateTime.now().subtract(const Duration(days: 30)),
+      lastDay: DateTime.now().add(const Duration(days: 60)),
       calendarFormat: CalendarFormat.week,
       selectedDayPredicate: (day) => isSameDay(selectedDate, day),
       onDaySelected: (selectedDay, focusedDay) {
@@ -511,7 +631,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
         ),
         rightChevronIcon: Icon(
           Icons.chevron_right,
-          color:myPrimaryColor,
+          color: myPrimaryColor,
         ),
       ),
       calendarStyle: CalendarStyle(
@@ -539,7 +659,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
         disabledTextStyle: GoogleFonts.poppins(
           color: Colors.grey.shade600,
         ),
-        todayDecoration: const BoxDecoration(
+        todayDecoration: BoxDecoration(
           color: Colors.orangeAccent,
           shape: BoxShape.circle,
         ),
@@ -551,219 +671,176 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       enabledDayPredicate: (day) => true,
     );
   }
-  void _showBedDialog(int index, BedState bedState) {
-    if (selectedDate.isBefore(DateTime.now().subtract(const Duration(days: 1))))  {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(
-              'Bed ${index}',
-              style: GoogleFonts.poppins(
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            content: Text(
-              'This date is in the past and cannot be edited.',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.black,
-              ),
-            ),
-            actions: [
-              TextButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black12,
-                    shape:
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'OK',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(
-              'Bed ${index}',
-              style: GoogleFonts.poppins(
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            content: bedState == BedState.booked
-                ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Current Booking Details:',
-                  style: GoogleFonts.poppins(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (bedDetailsByIndex.containsKey(index)) ...[
-                  _detailItem('Room Number', bedDetailsByIndex[index]!.roomNumber),
-                  _detailItem('Employee Name', bedDetailsByIndex[index]!.employeeName),
-                  _detailItem('Department', bedDetailsByIndex[index]!.department),
-                  _detailItem('Start Date', bedDetailsByIndex[index]!.startDate),
-                  _detailItem('End Date', bedDetailsByIndex[index]!.endDate),
-                ],
-                const SizedBox(height: 10),
-                Text(
-                  'Do you want to extend or vacate this bed?',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            )
-                : Text(
-              'Do you want to book this bed?',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.black,
-              ),
-            ),
-            actions: [
-              if (bedState == BedState.booked) ...[
-                TextButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade100,
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                  ),
-                  onPressed: () async {
-                    DateTime? newEndDate = await _selectEndDate(
-                        context, bedDetailsByIndex[index]!.endDate);
-                    if (newEndDate != null) {
-                      _showConfirmationDialog(
-                          context, index, bedDetailsByIndex[index]!, newEndDate);
-                    }
-                  },
-                  child: Text(
-                    'Extend',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: myPrimaryColor,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade100,
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                  ),
-                  onPressed: () {
-                    _showVacateConfirmationDialog(context, index);
-                  },
-                  child: Text(
-                    'Vacant',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: bookedColor,
-                    ),
-                  ),
-                ),
-              ],
-              if (bedState == BedState.vacant)
-                TextButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade100,
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                  ),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    dynamic result= await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const BookingPage()
 
-                      ),
-                    );
-                    if (result != null) {
-                      setState(() {
-                        bedStatusByDate[selectedDate]![index] = BedState.booked;
-                        bedDetailsByIndex[index] = BedDetails(
-                          roomNumber: result['roomNumber'] ?? '',
-                          employeeName: result['employeeName'] ?? '',
-                          department: result['department'] ?? '',
-                          startDate: DateFormat('yyyy-MM-dd').format (result['startDate'] ?? DateTime.now()),
-                          endDate: DateFormat('yyyy-MM-dd').format(result['endDate'] ?? DateTime.now()),
-                        );
-                      });
-                    }
-                  },
-                  child: Text(
-                    'Book',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: myPrimaryColor,
+  void _showBedDialog(int index, BedState bedState) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Bed ${index + 1}',
+            style: GoogleFonts.poppins(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          content: bedState == BedState.booked
+              ? Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Current Booking Details:',
+                style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (bedDetailsByIndex.containsKey(index)) ...[
+                _detailItem('Room Number', bedDetailsByIndex[index]!.roomNumber),
+                _detailItem('Employee Name', bedDetailsByIndex[index]!.employeeName),
+                _detailItem('Department', bedDetailsByIndex[index]!.department),
+                _detailItem('Start Date', bedDetailsByIndex[index]!.startDate),
+                _detailItem('End Date', bedDetailsByIndex[index]!.endDate),
+              ],
+              const SizedBox(height: 10),
+              Text(
+                'Do you want to extend or vacate this bed?',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          )
+              : Text(
+            'Do you want to book this bed?',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+          actions: [
+            if (bedState == BedState.booked) ...[
+              TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.orange.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-              TextButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black12,
-                    shape:
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
+                onPressed: () async {
+                  DateTime? newEndDate = await _selectEndDate(
+                      context, bedDetailsByIndex[index]!.endDate);
+                  if (newEndDate != null) {
+                    _showConfirmationDialog(
+                        context, index, bedDetailsByIndex[index]!, newEndDate);
+                  }
                 },
                 child: Text(
-                  'Cancel',
+                  'Extend',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: myPrimaryColor,
+                  ),
+                ),
+              ),
+              TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.green.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  _showVacateConfirmationDialog(context, index);
+                },
+                child: Text(
+                  'Vacant',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: bookedColor,
                   ),
                 ),
               ),
             ],
-          );
-        },
-      );
-    }
-    }
+            if (bedState == BedState.vacant)
+              TextButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.orange.shade100),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  dynamic result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BookingPage(),
+                    ),
+                  );
+                  if (result != null) {
+                    setState(() {
+                      bedStatusByDate[selectedDate]![index] = BedState.booked;
+                      bedDetailsByIndex[index] = BedDetails(
+                        roomNumber: result['roomNumber'] ?? '',
+                        employeeName: result['employeeName'] ?? '',
+                        department: result['department'] ?? '',
+                        startDate: DateFormat('yyyy-MM-dd').format(result['startDate'] ?? DateTime.now()),
+                        endDate: DateFormat('yyyy-MM-dd').format(result['endDate'] ?? DateTime.now()),
+                      );
+                    });
+                  }
+                },
+                child: Text(
+                  'Book',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: myPrimaryColor,
+                  ),
+                ),
+              ),
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showConfirmationDialog(BuildContext context, int index, BedDetails bedDetails, DateTime newEndDate) {
     showDialog(
       context: context,
@@ -787,12 +864,13 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           ),
           actions: [
             TextButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black12,
-                  shape:
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                  )
+                  ),
+                ),
               ),
               onPressed: () {
                 setState(() {
@@ -813,12 +891,13 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
               ),
             ),
             TextButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black12,
-                  shape:
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                  )
+                  ),
+                ),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -837,6 +916,7 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       },
     );
   }
+
   void _showVacateConfirmationDialog(BuildContext context, int index) {
     showDialog(
       context: context,
@@ -860,12 +940,13 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
           ),
           actions: [
             TextButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black12,
-                  shape:
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                  )
+                  ),
+                ),
               ),
               onPressed: () {
                 setState(() {
@@ -884,7 +965,27 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
                 ),
               ),
             ),
-           _ButtonBlack(text: "No")
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black12),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'No',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            ),
           ],
         );
       },
@@ -892,8 +993,8 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
   }
 
   Future<DateTime?> _selectEndDate(BuildContext context, String currentEndDate) async {
-    DateTime initialDate =DateTime.now();
-    DateTime lastDate= DateTime.now().add(const Duration(days: 365));
+    DateTime initialDate = DateTime.now();
+    DateTime lastDate = DateTime.now().add(const Duration(days: 365));
     if (initialDate.isAfter(lastDate)) {
       initialDate = lastDate;
     }
@@ -929,8 +1030,6 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
   }
 
   void _initializeBedStatus() {
-    // DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
-    // DateTime endDate = DateTime.now().add(const Duration(days: 30));
     DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
     DateTime endDate = DateTime.now().add(const Duration(days: 365));
     for (DateTime date = startDate; date.isBefore(endDate); date = date.add(const Duration(days: 1))) {
@@ -950,56 +1049,4 @@ class _CalendarBedBookingState extends State<HSMAccommodation> {
       }
     }
   }
-  Future<HomeModel> fetchItems() async {
-    String filterType = selectedFilter;
-    Map<String, String> body = {
-      'date': DateFormat('yyyy-MM-dd').format(selectedDate),
-      'filterType': filterType,
-    };
-    http.Response response = await http.post(
-      Uri.parse('https://beds-accomodation.vercel.app/api/checkBeds'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-    if (response.statusCode == 200) {
-      String jsonString = response.body;
-      Map<String, dynamic> data = Map<String, dynamic>.from(jsonDecode(jsonString));
-      return HomeModel.fromJson(data);
-    } else {
-      throw Exception('Failed to load home model');
-    }
-  }
 }
-class _ButtonBlack extends StatelessWidget {
-  final String text;
-  _ButtonBlack({required this.text, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black12,
-          shape:
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          )
-      ),
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-      child: Text(
-       text,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.red,
-        ),
-      ),
-    );
-  }
-}
-// there are two issue:-
-// good i want that when i click on dates of previous dates of last to current dates dates shoudl be clickab;e but the grid, the beds data like vacnat and booked should only view/watchables dialog box should not come only watch ofbooked and vancta not dialog , we can put comman dialog box like this dates can not be edited
-//

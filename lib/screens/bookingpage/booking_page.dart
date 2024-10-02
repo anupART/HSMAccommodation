@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../bootomnavbar/bottom_nav_bar.dart';
-import '../homescreen/new_home.dart';
-
 class BookingPage extends StatefulWidget {
-  const BookingPage({Key? key}) : super(key: key);
+  const BookingPage({super.key});
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -60,48 +57,27 @@ class _BookingPageState extends State<BookingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:  Colors.white,
-      // appBar: AppBar(
-        // leading: Navigator.pop(),
-        // leading: IconButton(
-        //   // Within the `FirstRoute` widget:
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(builder: (context) => BottomNavBar()),
-        //       );
-        //     },
-        //     icon:  Icon(Icons.arrow_back_ios,size: 23,)),
-        // centerTitle: true,
-        // title: const Text(
-        //   'Booking',
-        //   style: TextStyle(
-        //       color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
-        // ),
-        // backgroundColor: Colors.white,
-        // elevation: 0,
-        // iconTheme: const IconThemeData(color: Colors.black),
-      // ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 30),
+              // const SizedBox(height: 5),
               _buildDropdowns(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildTextField("Full Name", Icons.person, "Kshitija Bais"),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildTextField("Email ID", Icons.email, "Kshitija@Bais"),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildTextField("Department", Icons.account_balance, "IT"),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildTextField("Designation", Icons.work, "Intern"),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildTextField("Employee ID", Icons.badge, "123456"),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildDatePickers(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               _buildSaveButton(),
             ],
           ),
@@ -247,45 +223,14 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-  // Widget _buildSaveButton() {
-  //   return Center(
-  //     child: ElevatedButton(
-  //       onPressed: () {
-  //         // Save action
-  //       },
-  //       style: ElevatedButton.styleFrom(
-  //         foregroundColor: Colors.white, backgroundColor: Colors.deepOrangeAccent,
-  //         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(30),
-  //         ),
-  //         elevation: 5,
-  //       ),
-  //       child: const Text(
-  //         'Save Booking',
-  //         style: TextStyle(fontSize: 18),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-
   Widget _buildSaveButton() {
     return Center(
       child: ElevatedButton(
         onPressed: () {
-
-          Navigator.pop(context, {
-            'bedIndex': _selectedBedNo,
-            'roomNumber': _selectedBedNo,
-            'employeeName': 'Kshitija Bais',
-            'department': 'IT',
-            'startDate': _startDate,
-            'endDate': _endDate,
-          });
+          // Save action
         },
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white, backgroundColor: Colors.deepOrangeAccent,
+          foregroundColor: Colors.white, backgroundColor: Colors.deepOrange,
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -300,4 +245,3 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 }
-

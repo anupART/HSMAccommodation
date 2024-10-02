@@ -1,11 +1,14 @@
-import 'package:accomodation_app/screens/bootomnavbar/bottom_nav_bar.dart';
+import 'package:accomodation_app/screens/bottomnavbar/bottom_nav_bar.dart';
 import 'package:accomodation_app/screens/loginscreen/login_screen.dart';
 import 'package:accomodation_app/screens/homescreen/new_home.dart';
 import 'package:accomodation_app/screens/profilepage/profilepage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
+import 'local_storage/shared_helpher.dart';
+
 void main() {
+  MySharedPref.init();
   runApp(const MyApp());
 }
 
@@ -17,8 +20,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         // home: LoadMoreInfiniteScrollingDemo()
-        home: HSMAccommodation()
+        // home: HSMAccommodation()
         // home: ProfilePage()
+      home:SignInScreen(),
+      // home: BottomNavBar(),
+      // home:SignUpScreen(),
 
     );
   }

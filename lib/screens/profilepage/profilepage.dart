@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../local_storage/shared_helpher.dart';
+import '../../style/color.dart';
 import '../loginscreen/login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -39,6 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: Icon(Icons.arrow_back,color: Colors.black,size: 25,),
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
@@ -342,7 +345,27 @@ class CustomListTile extends StatelessWidget {
           ),
         ),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-        onTap: onTap,
+        onTap: () {
+          Get.defaultDialog(
+            title: 'Logout',
+            middleText: 'Are you sure you want to log out?',
+            textCancel: 'No',
+            textConfirm: 'Yes',
+            backgroundColor: Colors.white,
+            titleStyle: const TextStyle(color: Colors.black),
+            middleTextStyle: const TextStyle(color: Colors.black),
+            cancelTextColor: Colors.black,
+            confirmTextColor: Colors.black,
+            buttonColor:myOnSecondaryColor,
+            barrierDismissible: false,
+            onConfirm: () {
+              Get.back();
+              Get.back();
+              MySharedPref.clear();
+              Get.off(const SignInScreen());
+            },
+          );
+        },
       ),
     );
   }
